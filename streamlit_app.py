@@ -192,7 +192,7 @@ if __name__ == '__main__':
         gray_image = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
         _, thresh_image = cv2.threshold(gray_image, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         thresh_image = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-        
+
         # st.image(thresh_image, caption='Thresh Image', width=400)
 
         # Use pytesseract to detect text and its bounding boxes
