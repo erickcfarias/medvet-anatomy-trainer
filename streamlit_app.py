@@ -8,7 +8,6 @@ import os
 import streamlit as st
 from openai import OpenAI
 
-
 client = OpenAI()
 
 # Function to check if a word should start a new phrase
