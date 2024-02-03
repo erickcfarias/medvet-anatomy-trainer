@@ -19,11 +19,12 @@ def select_random_phrase(phrases, image_np):
 
         # Filter phrases with more than 4 letters
         filtered_phrases = {phrase: coords for phrase, coords in phrases.items() if len(phrase) > 4}
-
+        
         if filtered_phrases:
             # Select a random phrase from the filtered phrases
             if "phrase" not in st.session_state:
                 random_phrase = random.choice(list(filtered_phrases.keys()))
+
             else:
                 random_phrase = st.session_state['phrase'][0]
 
@@ -48,9 +49,14 @@ def apply_blur(image_np, detections):
 
     for i in range(i, num_detections):
 
-        if int(detections['conf'][i]) > 60:  # Confidence threshold
+        if int(detections['conf'][i]) > 10:  # Confidence threshold
 
             x, y, w, h = detections['left'][i], detections['top'][i], detections['width'][i], detections['height'][i]
+
+            if h > 40 and w > 40:
+                continue
+            elif w > 200:
+                continue
 
             roi = image_np[y:y+h, x:x+w]
 
@@ -173,6 +179,7 @@ if __name__ == '__main__':
     if 'image' not in st.session_state:
         # Select a random JPEG file
         image_path = os.path.join(data_folder, random.choice(jpeg_files))
+        # image_path = "data/escapula-equino.jpeg"
 
         image = Image.open(image_path)
 
@@ -183,10 +190,13 @@ if __name__ == '__main__':
     with st.spinner('Processing...'):
         # Preprocess the image: convert to grayscale and apply thresholding
         gray_image = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
-        _, thresh_image = cv2.threshold(gray_image, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        _, thresh_image = cv2.threshold(gray_image, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        thresh_image = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        
+        # st.image(thresh_image, caption='Thresh Image', width=400)
 
         # Use pytesseract to detect text and its bounding boxes
-        detections = pytesseract.image_to_data(thresh_image, lang='por+eng', config='--psm 11', output_type=pytesseract.Output.DICT)
+        detections = pytesseract.image_to_data(thresh_image, lang='por', config='--psm 11', output_type=pytesseract.Output.DICT)
 
         # Draw bounding boxes around phrases and apply blur
         phrases = apply_blur(image_np, detections)
