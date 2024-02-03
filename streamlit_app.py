@@ -11,7 +11,6 @@ from openai import OpenAI
 
 client = OpenAI()
 
-
 # Function to check if a word should start a new phrase
 def starts_new_phrase(word):
     return word and (word[0].isupper() or word[0].isdigit())
